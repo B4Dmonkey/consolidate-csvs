@@ -9,4 +9,4 @@ class OrderedMultiSet:
     def extend(self,rows):...
 
 def consolidate(file_paths: list[Path]) -> str:
-    return "hello world"
+    return file_paths[0].read_text()
