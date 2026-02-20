@@ -10,7 +10,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ipdb>=0.13.13",
     "pytest>=9.0.2",
+    "pytest-watcher>=0.6.3",
 ]
 
 [tool.pytest.ini_options]

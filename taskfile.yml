@@ -5,3 +5,11 @@ tasks:
     aliases: [t]
     desc: run the test
     cmd: uv run pytest
+    env:
+      PYTHONBREAKPOINT: ipdb.set_trace
+  test:watch:
+    aliases: [tw]
+    desc: run the test in watch mode
+    cmd: uv run ptw --now --last-failed . tests
+    env:
+      PYTHONBREAKPOINT: ipdb.set_trace
