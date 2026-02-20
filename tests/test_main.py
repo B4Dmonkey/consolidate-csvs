@@ -8,9 +8,7 @@ from conftest import Txn
 @pytest.fixture
 def run():
     CMD = "consolidate-csvs"
-    return lambda *args: subprocess.run(
-        [CMD, *map(str, args)], capture_output=True, text=True
-    )
+    return lambda *args: subprocess.run([CMD, *map(str, args)], capture_output=True, text=True)
 
 
 def test_main(run, make_csv_file):
@@ -44,9 +42,8 @@ def test_it_removes_dupes_across_files(run, make_csv_with_txn):
     got = run(a, b)
 
     assert got.returncode == 0
-    assert got.stdout.strip() == "\n".join(
-        ["date,desc,amount", "2024-01-01,Coffee,4.5"]
-    )
+    assert got.stdout.strip() == "\n".join(["date,desc,amount", "2024-01-01,Coffee,4.5"])
+
 
 @pytest.mark.skip(reason="this test will fail until the underlying logic is fixed")
 def test_it_combines_multiple_csv_inputs(run, make_csv_with_txn):

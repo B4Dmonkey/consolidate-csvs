@@ -17,3 +17,10 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+addopts = "--random-order -s"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

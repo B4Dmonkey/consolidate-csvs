@@ -1,15 +1,40 @@
 version: '3'
 
 tasks:
-  test:
+  qa:test:
     aliases: [t]
     desc: run the test
     cmd: uv run pytest
     env:
       PYTHONBREAKPOINT: ipdb.set_trace
-  test:watch:
+
+  qa:test:watch:
     aliases: [tw]
     desc: run the test in watch mode
     cmd: uv run ptw --now --last-failed . tests
     env:
       PYTHONBREAKPOINT: ipdb.set_trace
+
+  qa:lint:
+    aliases: [l]
+    desc: Run ruff linter with auto-fix
+    cmd: uv run ruff check . --fix
+
+  qa:format:
+    aliases: [f]
+    desc: Run ruff formatter
+    cmd: uv run ruff format .
+
+  qa:check-types:
+    aliases: [ct]
+    desc: Check type hints
+    cmd: uv run ty check .
+
+  qa:quality-assurance:
+    aliases: [qa]
+    desc: Run both linter and formatter to fix all issues
+    cmds:
+      - task: qa:check-types
+      - task: qa:lint
+      - task: qa:format
+      - task: qa:test
