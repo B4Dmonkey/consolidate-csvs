@@ -11,4 +11,8 @@ class OrderedMultiSet:
 
 
 def consolidate(*file_paths: Path) -> str:
+    headers = [path.open().readline() for path in file_paths]
+    if len(set(headers)) > 1:
+        raise ValueError("Header mismatch across files")
+
     return file_paths[0].read_text()

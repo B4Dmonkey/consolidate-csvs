@@ -13,23 +13,38 @@ class Txn(NamedTuple):
 
 @pytest.fixture
 def make_csv_file(tmp_path: Path):
-    def factory(filename: str = "example.csv") -> Path:
+    def factory(filename: str = "example.csv", headers: list[str]|None = None) -> Path:
+        if headers is None:
+            headers = ["date", "desc", "amount"]
         path = tmp_path / filename
         with path.open("w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["date", "desc", "amount"])
+            writer.writerow(headers)
         return path
 
     return factory
-
 
 @pytest.fixture
-def make_csv_with_txn(make_csv_file):
-    def factory(filename: str, txns: list[Txn]) -> Path:
-        path = make_csv_file(filename)
-        with path.open("a", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerows((t.date, t.desc, t.amount) for t in txns)
+def make_csv_with_headers(make_csv_file):
+    def factory(
+        filename: str, headers: list[str] | None = None, rows: list[list] | None = None
+    ) -> Path:
+        path = make_csv_file(filename, headers=headers)
+        if rows:
+            with path.open("a", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerows(rows)
         return path
 
     return factory
+
+@pytest.fixture
+def make_csv_with_txn(make_csv_with_headers):
+    def factory(filename: str, txns: list[Txn]) -> Path:
+        return make_csv_with_headers(
+            filename, rows=[(t.date, t.desc, t.amount) for t in txns]
+        )
+
+    return factory
+
+
