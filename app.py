@@ -8,6 +8,9 @@ class OrderedMultiSet:
         self._seen: set[Hashable] = set()
         self._order: list[Hashable] = []
 
+    def __iter__(self):
+        return iter(self._order)
+
     def extend(self, rows: list[Hashable]) -> None:
         for row in rows:
             if row not in self._seen:
@@ -23,13 +26,10 @@ def consolidate(*file_paths: Path) -> str:
     if not all(doc.fieldnames == headers for doc in documents):
         raise ValueError("Header mismatch across files")
 
-    header_list = list(headers)
     seen = OrderedMultiSet()
     for doc in documents:
-        rows = [tuple(row[h] for h in header_list) for row in doc]
+        rows = [tuple(row[h] for h in headers) for row in doc]
         seen.extend(rows)
 
-    lines = [",".join(header_list)]
-    for row in seen._order:
-        lines.append(",".join(row))  # type: ignore[arg-type]
+    lines = [",".join(headers)] + [",".join(row) for row in seen]
     return "\n".join(lines) + "\n"
