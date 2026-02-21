@@ -62,3 +62,32 @@ def test_it_combines_multiple_csv_inputs(run, make_csv_with_txn):
     )
 
     assert got.stdout.strip() == want
+
+
+def test_it_sorts_inputs_by_date_in_filename(run, make_csv_with_txn):
+    coffee = Txn("2024-01-01", "Coffee", 4.50)
+    bagel = Txn("2024-01-02", "Bagel", 3.00)
+    lunch = Txn("2024-01-03", "Lunch", 12.00)
+    tea = Txn("2024-01-04", "Tea", 2.50)
+    snack = Txn("2024-01-05", "Snack", 5.00)
+
+    a = make_csv_with_txn("Chase9931_Activity_20240103.CSV", [lunch, tea, snack])
+    b = make_csv_with_txn("Chase9931_Activity_20240101.CSV", [coffee, bagel, lunch])
+    c = make_csv_with_txn("Chase9931_Activity_20240102.CSV", [bagel, lunch, tea])
+
+    got = run(a, b, c)
+
+    assert got.returncode == 0
+
+    want = "\n".join(
+        [
+            "date,desc,amount",
+            "2024-01-01,Coffee,4.5",
+            "2024-01-02,Bagel,3.0",
+            "2024-01-03,Lunch,12.0",
+            "2024-01-04,Tea,2.5",
+            "2024-01-05,Snack,5.0",
+        ]
+    )
+
+    assert got.stdout.strip() == want

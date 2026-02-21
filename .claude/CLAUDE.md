@@ -36,6 +36,8 @@ CLI tool to consolidate multiple CSV files into one, removing cross-file duplica
 - Aim to keep code on one line when possible
 - Prefer table-driven tests (parametrize) over individual test functions
 - For parametrize, each case should test a meaningfully different scenario (different shape, edge case, or code path) — not the same logic with different data
+- Don't add comments unless the code is too complex to understand on its own or documents a decision that could cause problems later
+- Docstrings on methods are optional — ok to add but not required
 
 ## Workflow
 
