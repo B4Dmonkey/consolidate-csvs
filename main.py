@@ -6,7 +6,7 @@
 # ]
 # ///
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -18,7 +18,7 @@ app = typer.Typer(help="foo bar baz")
 @app.command()
 def main(
     csv_files: list[Path],
-    out: Annotated[Optional[Path], typer.Option("--out", "-o", help="Write output to a file")] = None,
+    out: Annotated[Path | None, typer.Option("--out", "-o", help="Write output to a file")] = None,
 ):
     if all(has_date(f.name) for f in csv_files):
         csv_files = sorted(csv_files, key=lambda f: f.name)
