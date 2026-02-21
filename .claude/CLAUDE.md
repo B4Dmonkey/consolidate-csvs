@@ -44,6 +44,8 @@ CLI tool to consolidate multiple CSV files into one, removing cross-file duplica
 - Write tests before implementation
 - When making tests pass, aim for the simplest fix — even if it's hardcoded or not robust. Build incrementally.
 - Always check with the user that tests are correct before writing implementation code
+- **Never modify tests the user has edited** — if the user changes a test after accepting it, treat that as the source of truth
+- **If other tests break, ask before fixing them** — do not silently update failing tests, even with auto-accept on. Always check in with the user first.
 - When introducing a new pattern or design decision, show example code and get approval before writing to files
 - Once a pattern is established in the codebase, reuse it without asking
 - When requirements are ambiguous, ask clarifying questions rather than guessing

@@ -20,7 +20,7 @@ class Txn(NamedTuple):
 def make_csv_file(tmp_path: Path):
     def factory(filename: str = "example.csv", headers: list[str] | None = None) -> Path:
         if headers is None:
-            headers = ["date", "desc", "amount"]
+            headers = ["Date", "desc", "amount"]
         path = tmp_path / filename
         with path.open("w", newline="") as f:
             writer = csv.writer(f)

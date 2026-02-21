@@ -11,13 +11,13 @@ class TestConsolidate:
 
         got = consolidate(a, b)
 
-        want = "\n".join(["date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-02,Bagel,3.0"])
+        want = "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-02,Bagel,3.0"])
         assert got.strip() == want
 
     def test_consolidate_returns_dupilcates_within_file(self, make_csv_with_txn):
         a = make_csv_with_txn("a.csv", [Txn("2024-01-01", "Coffee", 4.50), Txn("2024-01-01", "Coffee", 4.50)])
         got = consolidate(a)
-        assert got.strip() == "\n".join(["date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-01,Coffee,4.5"])
+        assert got.strip() == "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-01,Coffee,4.5"])
 
     def test_consolidate_raises_on_mismatched_headers(self, make_csv_with_headers):
         a = make_csv_with_headers("a.csv")
@@ -32,7 +32,7 @@ class TestConsolidate:
 
         got = consolidate(a, b)
 
-        want = "\n".join(["date,desc,amount", "2024-01-01,Coffee,4.5"])
+        want = "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5"])
         assert got.strip() == want
 
     def test_it_quotes_fields_containing_commas(self, make_csv_with_txn):
@@ -40,7 +40,15 @@ class TestConsolidate:
 
         got = consolidate(a)
 
-        want = "\n".join(["date,desc,amount", '2024-01-01,"SQ *BED-VYNE BREW, LLC Brooklyn NY",21.31'])
+        want = "\n".join(["Date,desc,amount", '2024-01-01,"SQ *BED-VYNE BREW, LLC Brooklyn NY",21.31'])
+        assert got.strip() == want
+
+    def test_it_sorts_rows_oldest_first_by_sort_key(self, make_csv_with_txn):
+        a = make_csv_with_txn("a.csv", [Txn("2024-01-03", "Lunch", 12.00), Txn("2024-01-01", "Coffee", 4.50)])
+
+        got = consolidate(a, sort_key="date")
+
+        want = "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-03,Lunch,12.0"])
         assert got.strip() == want
 
     def test_it_removes_sliding_window_duplicates_across_three_files(self, make_csv_with_txn):
@@ -57,7 +65,7 @@ class TestConsolidate:
 
         want = "\n".join(
             [
-                "date,desc,amount",
+                "Date,desc,amount",
                 "2024-01-01,Coffee,4.5",
                 "2024-01-02,Bagel,3.0",
                 "2024-01-03,Lunch,12.0",

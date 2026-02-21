@@ -26,7 +26,7 @@ def test_it_does_not_remove_dupes_within_same_csv(run, make_csv_with_txn):
 
     want = "\n".join(
         [
-            "date,desc,amount",
+            "Date,desc,amount",
             "2024-01-01,Coffee,4.5",
             "2024-01-01,Coffee,4.5",
         ]
@@ -42,7 +42,7 @@ def test_it_removes_dupes_across_files(run, make_csv_with_txn):
     got = run(a, b)
 
     assert got.returncode == 0
-    assert got.stdout.strip() == "\n".join(["date,desc,amount", "2024-01-01,Coffee,4.5"])
+    assert got.stdout.strip() == "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5"])
 
 
 def test_it_combines_multiple_csv_inputs(run, make_csv_with_txn):
@@ -55,7 +55,7 @@ def test_it_combines_multiple_csv_inputs(run, make_csv_with_txn):
 
     want = "\n".join(
         [
-            "date,desc,amount",
+            "Date,desc,amount",
             "2024-01-01,Coffee,4.5",
             "2024-01-02,Bagel,3.0",
         ]
@@ -81,7 +81,7 @@ def test_it_sorts_inputs_by_date_in_filename(run, make_csv_with_txn):
 
     want = "\n".join(
         [
-            "date,desc,amount",
+            "Date,desc,amount",
             "2024-01-01,Coffee,4.5",
             "2024-01-02,Bagel,3.0",
             "2024-01-03,Lunch,12.0",
@@ -100,4 +100,4 @@ def test_out_option_writes_to_file(run, make_csv_with_txn, tmp_path):
     got = run(a, "--out", out_file)
 
     assert got.returncode == 0
-    assert out_file.read_text().strip() == "date,desc,amount\n2024-01-01,Coffee,4.5"
+    assert out_file.read_text().strip() == "Date,desc,amount\n2024-01-01,Coffee,4.5"
