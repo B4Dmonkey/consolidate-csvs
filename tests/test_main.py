@@ -91,3 +91,13 @@ def test_it_sorts_inputs_by_date_in_filename(run, make_csv_with_txn):
     )
 
     assert got.stdout.strip() == want
+
+
+def test_out_option_writes_to_file(run, make_csv_with_txn, tmp_path):
+    a = make_csv_with_txn("a.csv", [Txn("2024-01-01", "Coffee", 4.50)])
+    out_file = tmp_path / "out.csv"
+
+    got = run(a, "--out", out_file)
+
+    assert got.returncode == 0
+    assert out_file.read_text().strip() == "date,desc,amount\n2024-01-01,Coffee,4.5"
