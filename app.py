@@ -1,4 +1,5 @@
 import csv
+import io
 import re
 from collections.abc import Hashable
 from pathlib import Path
@@ -36,5 +37,8 @@ def consolidate(*file_paths: Path) -> str:
         rows = [tuple(row[h] for h in headers) for row in doc]
         seen.extend(rows)
 
-    lines = [",".join(headers)] + [",".join(row) for row in seen]
-    return "\n".join(lines)
+    output = io.StringIO()
+    writer = csv.writer(output, lineterminator="\n")
+    writer.writerow(headers)
+    writer.writerows(seen)
+    return output.getvalue().strip()

@@ -35,6 +35,14 @@ class TestConsolidate:
         want = "\n".join(["date,desc,amount", "2024-01-01,Coffee,4.5"])
         assert got.strip() == want
 
+    def test_it_quotes_fields_containing_commas(self, make_csv_with_txn):
+        a = make_csv_with_txn("a.csv", [Txn("2024-01-01", "SQ *BED-VYNE BREW, LLC Brooklyn NY", 21.31)])
+
+        got = consolidate(a)
+
+        want = "\n".join(["date,desc,amount", '2024-01-01,"SQ *BED-VYNE BREW, LLC Brooklyn NY",21.31'])
+        assert got.strip() == want
+
     def test_it_removes_sliding_window_duplicates_across_three_files(self, make_csv_with_txn):
         coffee = Txn("2024-01-01", "Coffee", 4.50)
         bagel = Txn("2024-01-02", "Bagel", 3.00)
