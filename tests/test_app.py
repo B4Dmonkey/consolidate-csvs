@@ -1,7 +1,7 @@
 import pytest
 from conftest import Txn
 
-from app import OrderedMultiSet, consolidate
+from app import OrderedMultiSet, consolidate, has_date
 
 
 class TestConsolidate:
@@ -58,6 +58,21 @@ class TestConsolidate:
             ]
         )
         assert got.strip() == want
+
+
+class TestHasDate:
+    @pytest.mark.parametrize(
+        "text, want",
+        [
+            ("Chase9931_Activity_20260206.CSV", True),
+            ("no_date_here.csv", False),
+            ("20260101_transactions.csv", True),
+            ("file_with_7digits_1234567.csv", False),
+        ],
+    )
+    def test_has_date(self, text: str, want: bool) -> None:
+        got = has_date(text)
+        assert got == want
 
 
 class TestOrderedMultiSet:

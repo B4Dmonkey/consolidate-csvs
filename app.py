@@ -1,4 +1,5 @@
 import csv
+import re
 from collections.abc import Hashable
 from pathlib import Path
 
@@ -18,6 +19,10 @@ class OrderedMultiSet:
         self._seen.update(rows)
 
 
+def has_date(text: str) -> bool:
+    return bool(re.search(r"\d{8}", text))
+
+
 def consolidate(*file_paths: Path) -> str:
     documents = [csv.DictReader(path.open()) for path in file_paths]
     headers = documents[0].fieldnames
@@ -32,4 +37,4 @@ def consolidate(*file_paths: Path) -> str:
         seen.extend(rows)
 
     lines = [",".join(headers)] + [",".join(row) for row in seen]
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines)

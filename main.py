@@ -9,12 +9,14 @@ from pathlib import Path
 
 import typer
 
+from app import consolidate
+
 app = typer.Typer(help="foo bar baz")
 
 
 @app.command()
 def main(csv_files: list[Path]):
-    typer.echo(csv_files[0].read_text())
+    typer.echo(consolidate(*csv_files))
 
 
 if __name__ == "__main__":
