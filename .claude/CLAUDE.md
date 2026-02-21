@@ -35,6 +35,7 @@ CLI tool to consolidate multiple CSV files into one, removing cross-file duplica
 - Code should be readable, simple, and terse
 - Aim to keep code on one line when possible
 - Prefer table-driven tests (parametrize) over individual test functions
+- For parametrize, each case should test a meaningfully different scenario (different shape, edge case, or code path) — not the same logic with different data
 
 ## Workflow
 
@@ -50,3 +51,4 @@ CLI tool to consolidate multiple CSV files into one, removing cross-file duplica
 - Tests use `tmp_path` fixtures to create CSV files via factory helpers
 - `Txn` NamedTuple represents a transaction row (date, desc, amount)
 - pytest is configured with `--random-order -s` and `pythonpath = ["."]`
+- Use `want` / `got` naming for expected vs actual values in tests

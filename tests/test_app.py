@@ -35,6 +35,30 @@ class TestConsolidate:
         want = "\n".join(["date,desc,amount", "2024-01-01,Coffee,4.5"])
         assert got.strip() == want
 
+    def test_it_removes_sliding_window_duplicates_across_three_files(self, make_csv_with_txn):
+        coffee = Txn("2024-01-01", "Coffee", 4.50)
+        bagel = Txn("2024-01-02", "Bagel", 3.00)
+        lunch = Txn("2024-01-03", "Lunch", 12.00)
+        tea = Txn("2024-01-04", "Tea", 2.50)
+        snack = Txn("2024-01-05", "Snack", 5.00)
+        a = make_csv_with_txn("a.csv", [coffee, bagel, lunch])
+        b = make_csv_with_txn("b.csv", [bagel, lunch, tea])
+        c = make_csv_with_txn("c.csv", [lunch, tea, snack])
+
+        got = consolidate(a, b, c)
+
+        want = "\n".join(
+            [
+                "date,desc,amount",
+                "2024-01-01,Coffee,4.5",
+                "2024-01-02,Bagel,3.0",
+                "2024-01-03,Lunch,12.0",
+                "2024-01-04,Tea,2.5",
+                "2024-01-05,Snack,5.0",
+            ]
+        )
+        assert got.strip() == want
+
 
 class TestOrderedMultiSet:
     def test_extend(self):
