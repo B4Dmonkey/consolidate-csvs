@@ -101,3 +101,21 @@ def test_out_option_writes_to_file(run, make_csv_with_txn, tmp_path):
 
     assert got.returncode == 0
     assert out_file.read_text().strip() == "Date,desc,amount\n2024-01-01,Coffee,4.5"
+
+
+def test_sort_key_option(run, make_csv_with_txn):
+    a = make_csv_with_txn("a.csv", [Txn("2024-01-03", "Lunch", 12.00), Txn("2024-01-01", "Coffee", 4.50)])
+
+    got = run(a, "--sort-key", "date")
+
+    assert got.returncode == 0
+
+    want = "\n".join(
+        [
+            "Date,desc,amount",
+            "2024-01-01,Coffee,4.5",
+            "2024-01-03,Lunch,12.0",
+        ]
+    )
+
+    assert got.stdout.strip() == want

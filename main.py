@@ -19,10 +19,11 @@ app = typer.Typer(help="foo bar baz")
 def main(
     csv_files: list[Path],
     out: Annotated[Path | None, typer.Option("--out", "-o", help="Write output to a file")] = None,
+    sort_key: Annotated[str, typer.Option("--sort-key", "-s", help="Column name to sort rows by")] = "date",
 ):
     if all(has_date(f.name) for f in csv_files):
         csv_files = sorted(csv_files, key=lambda f: f.name)
-    result = consolidate(*csv_files)
+    result = consolidate(*csv_files, sort_key=sort_key)
     if out:
         out.write_text(result)
         return
