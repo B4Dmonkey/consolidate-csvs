@@ -51,6 +51,36 @@ class TestConsolidate:
         want = "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-03,Lunch,12.0"])
         assert got.strip() == want
 
+    def test_it_excludes_rows_where_required_column_is_empty(self, make_csv_with_headers):
+        a = make_csv_with_headers(
+            "a.csv",
+            headers=["Date", "desc", "amount", "balance"],
+            rows=[
+                ["2024-01-01", "Coffee", "4.50", "100.00"],
+                ["2024-01-02", "Bagel", "3.00", ""],
+            ],
+        )
+
+        got = consolidate(a, require="balance")
+
+        want = "\n".join(["Date,desc,amount,balance", "2024-01-01,Coffee,4.50,100.00"])
+        assert got == want
+
+    def test_require_is_case_insensitive(self, make_csv_with_headers):
+        a = make_csv_with_headers(
+            "a.csv",
+            headers=["Date", "desc", "amount", "Balance"],
+            rows=[
+                ["2024-01-01", "Coffee", "4.50", "100.00"],
+                ["2024-01-02", "Bagel", "3.00", ""],
+            ],
+        )
+
+        got = consolidate(a, require="balance")
+
+        want = "\n".join(["Date,desc,amount,Balance", "2024-01-01,Coffee,4.50,100.00"])
+        assert got == want
+
     def test_it_removes_sliding_window_duplicates_across_three_files(self, make_csv_with_txn):
         coffee = Txn("2024-01-01", "Coffee", 4.50)
         bagel = Txn("2024-01-02", "Bagel", 3.00)

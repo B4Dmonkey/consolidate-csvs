@@ -20,10 +20,13 @@ def main(
     csv_files: list[Path],
     out: Annotated[Path | None, typer.Option("--out", "-o", help="Write output to a file")] = None,
     sort_key: Annotated[str, typer.Option("--sort-key", "-s", help="Column name to sort rows by")] = "date",
+    require: Annotated[
+        str | None, typer.Option("--require", "-r", help="Exclude rows where this column is empty")
+    ] = None,
 ):
     if all(has_date(f.name) for f in csv_files):
         csv_files = sorted(csv_files, key=lambda f: f.name)
-    result = consolidate(*csv_files, sort_key=sort_key)
+    result = consolidate(*csv_files, sort_key=sort_key, require=require)
     if out:
         out.write_text(result)
         return

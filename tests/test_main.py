@@ -119,3 +119,19 @@ def test_sort_key_option(run, make_csv_with_txn):
     )
 
     assert got.stdout.strip() == want
+
+
+def test_require_option_excludes_rows_with_empty_column(run, make_csv_with_headers):
+    a = make_csv_with_headers(
+        "a.csv",
+        headers=["Date", "desc", "amount", "balance"],
+        rows=[
+            ["2024-01-01", "Coffee", "4.50", "100.00"],
+            ["2024-01-02", "Bagel", "3.00", ""],
+        ],
+    )
+
+    got = run(a, "--require", "balance")
+
+    assert got.returncode == 0
+    assert got.stdout.strip() == "Date,desc,amount,balance\n2024-01-01,Coffee,4.50,100.00"

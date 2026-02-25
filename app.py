@@ -24,7 +24,7 @@ def has_date(text: str) -> bool:
     return bool(re.search(r"\d{8}", text))
 
 
-def consolidate(*file_paths: Path, sort_key: str = "date") -> str:
+def consolidate(*file_paths: Path, sort_key: str = "date", require: str | None = None) -> str:
     documents = [csv.DictReader(path.open()) for path in file_paths]
     headers = documents[0].fieldnames
     if not headers:
@@ -32,10 +32,13 @@ def consolidate(*file_paths: Path, sort_key: str = "date") -> str:
     if not all(doc.fieldnames == headers for doc in documents):
         raise ValueError("Header mismatch across files")
 
+    headers_lower = [h.lower() for h in headers]
+    if require and require.lower() in headers_lower:
+        require = headers[headers_lower.index(require.lower())]
+
     seen = OrderedMultiSet()
     for doc in documents:
-        rows = [tuple(row[h] for h in headers) for row in doc]
-        headers_lower = [h.lower() for h in headers]
+        rows = [tuple(row[h] for h in headers) for row in doc if not require or row.get(require)]
         if sort_key.lower() in headers_lower:
             key_index = headers_lower.index(sort_key.lower())
             rows.sort(key=lambda r: r[key_index])
