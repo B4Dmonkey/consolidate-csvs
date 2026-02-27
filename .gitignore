@@ -2,3 +2,4 @@ __pycache__/
 .pytest_cache/
 .pytest-version
 uv.lock
+tests/test_integration.py

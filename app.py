@@ -1,8 +1,10 @@
 import csv
 import io
 import re
-from collections.abc import Hashable
+from collections.abc import Callable, Hashable
+from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 
 class OrderedMultiSet:
@@ -13,11 +15,26 @@ class OrderedMultiSet:
     def __iter__(self):
         return iter(self._order)
 
+    def sort(self, key: Callable[[Hashable], Any]) -> None:
+        self._order.sort(key=key)
+
     def extend(self, rows: list[Hashable]) -> None:
         for row in rows:
             if row not in self._seen:
                 self._order.append(row)
         self._seen.update(rows)
+
+
+DATE_FORMATS = ["%m/%d/%Y", "%Y-%m-%d"]
+
+
+def parse_date(text: str) -> str:
+    for fmt in DATE_FORMATS:
+        try:
+            return datetime.strptime(text, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return text
 
 
 def has_date(text: str) -> bool:
@@ -37,12 +54,22 @@ def consolidate(*file_paths: Path, sort_key: str = "date", require: str | None =
         require = headers[headers_lower.index(require.lower())]
 
     seen = OrderedMultiSet()
+    extra_columns = 0
     for doc in documents:
-        rows = [tuple(row[h] for h in headers) for row in doc if not require or row.get(require)]
-        if sort_key.lower() in headers_lower:
-            key_index = headers_lower.index(sort_key.lower())
-            rows.sort(key=lambda r: r[key_index])
+        rows = []
+        for row in doc:
+            if require and not row.get(require, "").strip():
+                continue
+            values = tuple(re.sub(r" {2,}", " ", row[h]) for h in headers)
+            extra = row.get(None, [])
+            if extra:
+                values = values + tuple(extra)
+                extra_columns = max(extra_columns, len(extra))
+            rows.append(values)
         seen.extend(rows)
+    if sort_key.lower() in headers_lower:
+        key_index = headers_lower.index(sort_key.lower())
+        seen.sort(key=lambda r: parse_date(r[key_index]))
 
     output = io.StringIO()
     writer = csv.writer(output, lineterminator="\n")

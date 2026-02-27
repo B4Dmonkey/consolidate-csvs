@@ -1,5 +1,7 @@
 import builtins
 import csv
+import subprocess
+from collections.abc import Callable
 from pathlib import Path
 from pprint import pprint
 from typing import NamedTuple
@@ -10,6 +12,15 @@ import pytest
 builtins.pprint = pprint  # ty:ignore[unresolved-attribute]
 
 
+type csv_factory = Callable[[str, list[str] | None], Path]
+
+
+@pytest.fixture
+def run():
+    CMD = "consolidate-csvs"
+    return lambda *args: subprocess.run([CMD, *map(str, args)], capture_output=True, text=True)
+
+
 class Txn(NamedTuple):
     date: str
     desc: str
@@ -17,7 +28,7 @@ class Txn(NamedTuple):
 
 
 @pytest.fixture
-def make_csv_file(tmp_path: Path):
+def make_csv_file(tmp_path: Path) -> csv_factory:
     def factory(filename: str = "example.csv", headers: list[str] | None = None) -> Path:
         if headers is None:
             headers = ["Date", "desc", "amount"]

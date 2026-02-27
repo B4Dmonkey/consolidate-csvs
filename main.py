@@ -24,7 +24,7 @@ def main(
         str | None, typer.Option("--require", "-r", help="Exclude rows where this column is empty")
     ] = None,
 ):
-    if all(has_date(f.name) for f in csv_files):
+    if len(csv_files) > 1 and all(has_date(f.name) for f in csv_files):
         csv_files = sorted(csv_files, key=lambda f: f.name)
     result = consolidate(*csv_files, sort_key=sort_key, require=require)
     if out:

@@ -1,14 +1,6 @@
-import subprocess
 from pathlib import Path
 
-import pytest
 from conftest import Txn
-
-
-@pytest.fixture
-def run():
-    CMD = "consolidate-csvs"
-    return lambda *args: subprocess.run([CMD, *map(str, args)], capture_output=True, text=True)
 
 
 def test_main(run, make_csv_file):
