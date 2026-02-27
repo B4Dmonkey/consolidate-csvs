@@ -12,7 +12,7 @@ import pytest
 builtins.pprint = pprint  # ty:ignore[unresolved-attribute]
 
 
-type csv_factory = Callable[[str, list[str] | None], Path]
+type csv_factory = Callable[..., Path]
 
 
 @pytest.fixture
@@ -28,26 +28,17 @@ class Txn(NamedTuple):
 
 
 @pytest.fixture
-def make_csv_file(tmp_path: Path) -> csv_factory:
-    def factory(filename: str = "example.csv", headers: list[str] | None = None) -> Path:
+def make_csv_with_headers(tmp_path: Path):
+    def factory(
+        filename: str = "example.csv", headers: list[str] | None = None, rows: list[list] | None = None
+    ) -> Path:
         if headers is None:
             headers = ["Date", "desc", "amount"]
         path = tmp_path / filename
         with path.open("w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(headers)
-        return path
-
-    return factory
-
-
-@pytest.fixture
-def make_csv_with_headers(make_csv_file):
-    def factory(filename: str, headers: list[str] | None = None, rows: list[list] | None = None) -> Path:
-        path = make_csv_file(filename, headers=headers)
-        if rows:
-            with path.open("a", newline="") as f:
-                writer = csv.writer(f)
+            if rows:
                 writer.writerows(rows)
         return path
 

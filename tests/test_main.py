@@ -3,8 +3,8 @@ from pathlib import Path
 from conftest import Txn
 
 
-def test_main(run, make_csv_file):
-    test_file: Path = make_csv_file()
+def test_main(run, make_csv_with_headers):
+    test_file: Path = make_csv_with_headers()
     got = run(test_file)
     assert got.returncode == 0
     assert got.stdout.strip() == test_file.read_text().strip()

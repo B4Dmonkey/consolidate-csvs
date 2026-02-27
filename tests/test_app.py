@@ -43,18 +43,34 @@ class TestConsolidate:
         want = "\n".join(["Date,desc,amount", '2024-01-01,"SQ *BED-VYNE BREW, LLC Brooklyn NY",21.31'])
         assert got.strip() == want
 
-    def test_it_sorts_rows_oldest_first_by_sort_key(self, make_csv_with_txn):
-        a = make_csv_with_txn("a.csv", [Txn("2024-01-03", "Lunch", 12.00), Txn("2024-01-01", "Coffee", 4.50)])
+    @pytest.mark.parametrize(
+        "files",
+        [
+            {"a.csv": [Txn("2024-01-03", "Lunch", 12.00), Txn("2024-01-01", "Coffee", 4.50)]},
+            {"a.csv": [Txn("2024-01-03", "Lunch", 12.00)], "b.csv": [Txn("2024-01-01", "Coffee", 4.50)]},
+        ],
+        ids=["single-file", "across-files"],
+    )
+    def test_it_sorts_rows_by_sort_key(self, make_csv_with_txn, files):
+        paths = [make_csv_with_txn(name, txns) for name, txns in files.items()]
 
-        got = consolidate(a, sort_key="date")
+        got = consolidate(*paths, sort_key="date")
 
         want = "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-03,Lunch,12.0"])
-        assert got.strip() == want
+        assert got == want
 
-    def test_it_excludes_rows_where_required_column_is_empty(self, make_csv_with_headers):
+    @pytest.mark.parametrize(
+        "header_name, want_header",
+        [
+            ("balance", "balance"),
+            ("Balance", "Balance"),
+        ],
+        ids=["exact-match", "case-insensitive"],
+    )
+    def test_it_excludes_rows_where_required_column_is_empty(self, make_csv_with_headers, header_name, want_header):
         a = make_csv_with_headers(
             "a.csv",
-            headers=["Date", "desc", "amount", "balance"],
+            headers=["Date", "desc", "amount", header_name],
             rows=[
                 ["2024-01-01", "Coffee", "4.50", "100.00"],
                 ["2024-01-02", "Bagel", "3.00", ""],
@@ -63,31 +79,7 @@ class TestConsolidate:
 
         got = consolidate(a, require="balance")
 
-        want = "\n".join(["Date,desc,amount,balance", "2024-01-01,Coffee,4.50,100.00"])
-        assert got == want
-
-    def test_require_is_case_insensitive(self, make_csv_with_headers):
-        a = make_csv_with_headers(
-            "a.csv",
-            headers=["Date", "desc", "amount", "Balance"],
-            rows=[
-                ["2024-01-01", "Coffee", "4.50", "100.00"],
-                ["2024-01-02", "Bagel", "3.00", ""],
-            ],
-        )
-
-        got = consolidate(a, require="balance")
-
-        want = "\n".join(["Date,desc,amount,Balance", "2024-01-01,Coffee,4.50,100.00"])
-        assert got == want
-
-    def test_it_sorts_rows_globally_across_files(self, make_csv_with_txn):
-        a = make_csv_with_txn("a.csv", [Txn("2024-01-03", "Lunch", 12.00)])
-        b = make_csv_with_txn("b.csv", [Txn("2024-01-01", "Coffee", 4.50)])
-
-        got = consolidate(a, b, sort_key="date")
-
-        want = "\n".join(["Date,desc,amount", "2024-01-01,Coffee,4.5", "2024-01-03,Lunch,12.0"])
+        want = "\n".join([f"Date,desc,amount,{want_header}", "2024-01-01,Coffee,4.50,100.00"])
         assert got == want
 
     def test_it_preserves_empty_cells_in_output(self, make_csv_with_headers):
